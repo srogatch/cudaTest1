@@ -14,7 +14,6 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --maxrregcount 32")
 set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -g -G")
 set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --Werror all-warnings")
-set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Xcompiler -Wall -Xcompiler -Wextra")
 set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --nvlink-options --suppress-stack-size-warning")
 set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --extended-lambda")
 
@@ -22,11 +21,20 @@ add_executable(cudaTest1 main.cpp kernel.cu Common.cpp)
 set_property(TARGET cudaTest1 PROPERTY CUDA_STANDARD 20)
 
 # lots of warnings and all warnings as errors
-add_compile_options(-Wall -Wextra -pedantic -Werror -march=native)
+if(CMAKE_COMPILER_IS_GNUCXX)
+  set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Xcompiler -Wall -Xcompiler -Wextra")
+  add_compile_options(-Wall -Wextra -pedantic -Werror -march=native -flto)
+elseif(MSVC)
+  set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Xcompiler /W4 -Xcompiler /arch:AVX2 \
+    -Xcompiler /GL -Xcompiler /Qvec -Xcompiler /Oi -Xcompiler /Ob3 -Xcompiler /WX")
+  add_compile_options(/W4 /arch:AVX2 /GL /Qvec /Oi /Ob3 /WX)
+endif()
 
 # Use parallel STL
 find_package(OpenMP)
 if (OPENMP_FOUND)
   target_link_libraries(cudaTest1 PRIVATE OpenMP::OpenMP_CXX)
-  add_compile_definitions(_GLIBCXX_PARALLEL)
+  if(CMAKE_COMPILER_IS_GNUCXX)
+    add_compile_definitions(_GLIBCXX_PARALLEL)
+  endif()
 endif()
