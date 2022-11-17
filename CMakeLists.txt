@@ -22,8 +22,9 @@ set_property(TARGET cudaTest1 PROPERTY CUDA_STANDARD 20)
 
 # lots of warnings and all warnings as errors
 if(CMAKE_COMPILER_IS_GNUCXX)
-  set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Xcompiler -Wall -Xcompiler -Wextra")
-  add_compile_options(-Wall -Wextra -pedantic -Werror -march=native -flto)
+  set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Xcompiler -Wall -Xcompiler -Wextra  \
+    -Xcompiler -mavx2 -Xcompiler -mfma")
+  add_compile_options(-Wall -Wextra -pedantic -Werror -mavx2 -mfma - -flto)
 elseif(MSVC)
   set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Xcompiler /W4 -Xcompiler /arch:AVX2 \
     -Xcompiler /GL -Xcompiler /Qvec -Xcompiler /Oi -Xcompiler /Ob3 -Xcompiler /WX")
