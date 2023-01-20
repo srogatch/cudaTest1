@@ -1,15 +1,17 @@
 cmake_minimum_required(VERSION 3.19 FATAL_ERROR)
 project(cudaTest1_proj LANGUAGES C CXX CUDA)
 
-find_package(CUDA REQUIRED)
-include_directories("${CUDA_INCLUDE_DIRS}")
+find_package(CUDAToolkit REQUIRED)
 
 include(CTest)
 
-set(CMAKE_CUDA_ARCHITECTURES "61;75;86" CACHE STRING "CUDA compute capabilities to target for")
+set(CMAKE_CUDA_ARCHITECTURES 61 75 86 CACHE STRING "CUDA compute capabilities to target for" FORCE)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
+set(CMAKE_CUDA_STANDARD 17)
+set(CMAKE_CUDA_STANDARD_REQUIRED TRUE)
 
 set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --maxrregcount 40 --use_fast_math")
 string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
@@ -38,7 +40,7 @@ else()
 endif()
 
 add_executable(cudaTest1 main.cpp kernel.cu Common.cpp)
-set_property(TARGET cudaTest1 PROPERTY CUDA_STANDARD 20)
+target_link_libraries(cudaTest1 PRIVATE CUDA::cudart)
 
 # Use parallel STL
 find_package(OpenMP)
